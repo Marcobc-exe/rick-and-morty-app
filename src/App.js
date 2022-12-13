@@ -1,28 +1,54 @@
-import { useEffect } from 'react';
-import './App.css';
-import Navbar from './components/Navbar'
+import { useEffect, useState } from "react";
+import "./App.css";
+import Navbar from "./components/Navbar";
+import Characters from "./components/Characters";
+import Pagination from "./components/Pagination";
 
-const url = "https://rickandmortyapi.com/api/character"
+const App = () => {
+    const url = "https://rickandmortyapi.com/api/character";
+    const [characters, setCharacters] = useState([]);
+    const [info, setInfo] = useState({});
 
-const getCharacterAPI = async (url) => {
+    const getCharacterAPI = async (url) => {
+        const response = await fetch(url);
+        const data = await response.json();
+        setCharacters(data.results);
+        setInfo(data.info);
+        console.log(data);
+    };
 
-  const response = await fetch(url)
-  const data = await response.json()
+    const onPrevious = () => {
+        getCharacterAPI(info.prev);
+    };
 
-  console.log(data)
-}
+    const onNext = () => {
+        getCharacterAPI(info.next);
+    };
 
-function App() {
+    useEffect(() => {
+        getCharacterAPI(url);
+    }, []);
 
-  useEffect(() => {
-    getCharacterAPI(url)
-  }, [])
-  
-  return (
-    <div className="App">
-      <Navbar brand="Rick and Morty App!"/>
-    </div>
-  );
-}
+    return (
+        <>
+            <Navbar brand="Rick and Morty App!" />
+            <div className="container mt-5">
+                <Pagination
+                    prev={info.prev}
+                    next={info.next}
+                    onPrevious={onPrevious}
+                    onNext={onNext}
+                />
+                <Characters characters={characters} />
+                <Pagination
+                    prev={info.prev}
+                    next={info.next}
+                    onPrevious={onPrevious}
+                    onNext={onNext}
+                />
+            </div>
+        </>
+    );
+};
 
 export default App;
